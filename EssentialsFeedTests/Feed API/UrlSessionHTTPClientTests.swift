@@ -209,6 +209,7 @@ class URLSessionHTTPClientTests: XCTestCase {
             client?.urlProtocolDidFinishLoading(self)
         }
         
+        
         override func stopLoading() {}
     }
     
