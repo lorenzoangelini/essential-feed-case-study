@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2D1399B526C5DB63007B35B1 /* XCTestCase+MemoryLeakTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC9A0D026C5124600DCF1B1 /* XCTestCase+MemoryLeakTracking.swift */; };
+		2D45145126C7B1EC00C2FD43 /* CacheFeedUseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D45145026C7B1EC00C2FD43 /* CacheFeedUseTestCase.swift */; };
 		2D4C5F3D26C1999A000CCCDA /* EssentialsFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D4C5F3326C19999000CCCDA /* EssentialsFeed.framework */; };
 		2D4C5F4426C1999A000CCCDA /* EssentialsFeed.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D4C5F3626C19999000CCCDA /* EssentialsFeed.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2D4C5F5026C199B7000CCCDA /* FeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4C5F4F26C199B7000CCCDA /* FeedItem.swift */; };
@@ -41,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D45145026C7B1EC00C2FD43 /* CacheFeedUseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheFeedUseTestCase.swift; sourceTree = "<group>"; };
 		2D4C5F3326C19999000CCCDA /* EssentialsFeed.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = EssentialsFeed.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D4C5F3626C19999000CCCDA /* EssentialsFeed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EssentialsFeed.h; sourceTree = "<group>"; };
 		2D4C5F3726C19999000CCCDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -87,6 +89,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2D45144F26C7B1A700C2FD43 /* Feed Cache */ = {
+			isa = PBXGroup;
+			children = (
+				2D45145026C7B1EC00C2FD43 /* CacheFeedUseTestCase.swift */,
+			);
+			path = "Feed Cache";
+			sourceTree = "<group>";
+		};
 		2D4C5F2926C19999000CCCDA = {
 			isa = PBXGroup;
 			children = (
@@ -121,6 +131,7 @@
 		2D4C5F4026C1999A000CCCDA /* EssentialsFeedTests */ = {
 			isa = PBXGroup;
 			children = (
+				2D45144F26C7B1A700C2FD43 /* Feed Cache */,
 				2DC9A0BF26C3E06A00DCF1B1 /* Feed API */,
 				2D4C5F4326C1999A000CCCDA /* Info.plist */,
 			);
@@ -327,6 +338,7 @@
 			files = (
 				2DC9A0C326C41A8B00DCF1B1 /* UrlSessionHTTPClientTests.swift in Sources */,
 				2D4C5F6326C1D78C000CCCDA /* LoadFeedFromRemoteUseCaseTests.swift in Sources */,
+				2D45145126C7B1EC00C2FD43 /* CacheFeedUseTestCase.swift in Sources */,
 				2DC9A0D126C5124600DCF1B1 /* XCTestCase+MemoryLeakTracking.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
