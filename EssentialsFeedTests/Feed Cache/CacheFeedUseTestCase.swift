@@ -94,12 +94,14 @@ class CacheFeedUseTestCase: XCTestCase {
         let timestamp = Date()
         let items = [uniqueItem(), uniqueItem()]
         let (sut, store)  = makeSUT(currentDate: {timestamp})
-       
+        let localItems = items.map{
+            LocalFeedItem(id: $0.id, description: $0.description, location: $0.location, imageUrl: $0.imageUrl)
+        }
         sut.save(items){_ in}
         store.completeDeletionSuccessfully()
         
 
-        XCTAssertEqual(store.receivedMessages, [.deletedCacheFeedItem, .insert(items, timestamp)])
+        XCTAssertEqual(store.receivedMessages, [.deletedCacheFeedItem, .insert(localItems, timestamp)])
     }
     
     
@@ -122,7 +124,7 @@ class CacheFeedUseTestCase: XCTestCase {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
         
-        var recivedResult = [Error?]()
+        var recivedResult = [LocalFeedLoader.SaveResult]()
         
         sut?.save([uniqueItem()]){ recivedResult.append($0)}
         
@@ -140,7 +142,7 @@ class CacheFeedUseTestCase: XCTestCase {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
         
-        var recivedResult = [Error?]()
+        var recivedResult = [LocalFeedLoader.SaveResult]()
         
         sut?.save([uniqueItem()]){ recivedResult.append($0)}
         
@@ -171,7 +173,7 @@ class CacheFeedUseTestCase: XCTestCase {
 
         enum ReceivedMessage: Equatable {
             case deletedCacheFeedItem
-            case insert([FeedItem], Date)
+            case insert([LocalFeedItem], Date)
         }
         
         private(set) var receivedMessages = [ReceivedMessage]()
@@ -207,7 +209,7 @@ class CacheFeedUseTestCase: XCTestCase {
             
         }
         
-        func insertItems(_ items: [FeedItem], timestamp: Date, completion: @escaping InsertionComplition){
+        func insertItems(_ items: [LocalFeedItem], timestamp: Date, completion: @escaping InsertionComplition){
             insertionComplition.append(completion)
            
             receivedMessages.append(.insert(items, timestamp))
