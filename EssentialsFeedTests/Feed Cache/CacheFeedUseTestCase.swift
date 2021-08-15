@@ -10,53 +10,8 @@ import EssentialsFeed
 
 
 
-protocol FeedStore {
-    typealias DeletionComplition = (Error?) -> Void
-    typealias InsertionComplition = (Error?) -> Void
-   
-    func deleteCachedFeed(completion: @escaping DeletionComplition)
-    func insertItems(_ items: [FeedItem], timestamp: Date, completion: @escaping InsertionComplition)
-}
 
 
-
-
-class LocalFeedLoader {
-    
-    private let store: FeedStore
-    private let currentDate: ()-> Date
-    
-    init (store: FeedStore, currentDate: @escaping ()-> Date){
-        self.store = store
-        self.currentDate = currentDate
-    }
-    
-    func save(_ items: [FeedItem], completion: @escaping (Error?) -> Void ) {
-        store.deleteCachedFeed { [weak self] error in
-           
-            guard let self = self else { return }
-            
-            if  let cacheDeletionError = error{
-                completion(cacheDeletionError)
-                
-            }else{
-                
-                self.cache(items, with: completion)
-               
-            }
-            
-        }
-    }
-    
-    private func cache(_ items: [FeedItem], with  completion: @escaping (Error?) -> Void ){
-        store.insertItems(items, timestamp: currentDate()){
-            [weak self] error in
-            guard self != nil else {return}
-            completion(error)
-        }
-    }
-    
-}
 
 
 class CacheFeedUseTestCase: XCTestCase {
