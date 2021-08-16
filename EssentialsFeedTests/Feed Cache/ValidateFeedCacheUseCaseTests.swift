@@ -29,6 +29,20 @@ class ValidateFeedCacheUseCaseTests : XCTestCase {
     }
     
     
+    //TODO
+    func test_validateCache_doesNotdeletesCacheOnEmptyCache(){
+        let (sut, store) = makeSUT()
+        
+        sut.validateCache()
+        
+        store.completeRetrievalWithEmptyCache()
+        
+        XCTAssertEqual(store.receivedMessages, [.retrieve])
+        
+        
+    }
+    
+    
     private func anyNSError() -> NSError {
         return NSError(domain: "any error", code: 0)
     }
