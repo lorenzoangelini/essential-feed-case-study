@@ -47,14 +47,19 @@ class FeedStoreSpy :  FeedStore{
        
     }
     
-    func completeRetrieval(with error: NSError, at index: Int = 0){
-        retrievalComplition[index](error)
-       
-    }
+   
     
     func completeInsertionSuccessfully(at index: Int = 0){
         insertionComplition[index](nil)
         
+    }
+    
+    func completeRetrieval(with error: NSError, at index: Int = 0){
+        retrievalComplition[index](error)
+    }
+    
+    func completeRetrievalWithEmptyCache(at index: Int = 0){
+        retrievalComplition[index](nil)
     }
     
     func insertItems(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionComplition){
