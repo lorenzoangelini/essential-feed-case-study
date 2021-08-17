@@ -8,96 +8,6 @@
 import XCTest
 import EssentialsFeed
 
-class CodableFeedStore: FeedStore{
-    
-
-    
-    private struct Cache: Codable {
-        
-        let feed: [CodableFeedImage]
-        let timestamp: Date
-        
-        var localFeedCache: [LocalFeedImage] {
-            return feed.map {
-                $0.local
-            }
-        }
-        
-    }
-    
-    private struct CodableFeedImage: Codable {
-        private let id: UUID
-        private let description: String?
-        private let location: String?
-        private let url: URL
-        
-        init(_ image: LocalFeedImage){
-            id = image.id
-            description = image.description
-            location = image.location
-            url = image.url
-        }
-        
-        var local : LocalFeedImage {
-            return LocalFeedImage(id: id, description: description, location: location, url: url)
-        }
-        
-    }
-    
-
-    private let storeURL: URL
-    
-    init(storeURL: URL){
-        self.storeURL = storeURL
-    }
-    
-    
-    func deleteCachedFeed(completion: @escaping DeletionComplition) {
-        guard FileManager.default.fileExists(atPath: storeURL.path) else {
-                    return completion(nil)
-                }
-
-        do {
-                    try FileManager.default.removeItem(at: storeURL)
-                    completion(nil)
-                } catch {
-                    completion(error)
-                }
-        }
-    
-    func retrieve(completion: @escaping RetrievalComplition){
-        guard let data = try? Data(contentsOf: storeURL) else {
-             return completion(.empty)
-        }
-        do{
-            let decoder = JSONDecoder()
-            let cache = try decoder.decode(Cache.self, from: data)
-            completion(.found(feed: cache.localFeedCache, timestamp: cache.timestamp))
-        } catch {
-            completion(.failure(error))
-        }
-      
-    }
-    
-    func insertItems(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionComplition){
-        
-        do {
-            let econder = JSONEncoder()
-            let cache = Cache(feed: feed.map(CodableFeedImage.init), timestamp: timestamp)
-            let encoded = try econder.encode(cache)
-            try encoded.write(to: storeURL)
-            completion(nil)
-        
-        } catch {
-            completion(error)
-        }
-        
-        
-         
-    }
-    
-}
-
 class CodableFeedStoreCache: XCTestCase {
     
     
@@ -226,6 +136,33 @@ class CodableFeedStoreCache: XCTestCase {
 
         XCTAssertNotNil(deletionError, "Expected cache deletion to fail")
         expect(sut, toRetrieve: .empty)
+    }
+    
+    func test_storeSideEffects_runSerially(){
+        let sut = makeSUT()
+        var completeOperationsInOrder = [XCTestExpectation]()
+        
+        let op1 = expectation(description: "Operation1")
+        sut.insertItems(uniqueImageFeed().local, timestamp: Date()){ _ in
+            completeOperationsInOrder.append(op1)
+            op1.fulfill()
+        }
+        
+        let op2 = expectation(description: "Operation2")
+        sut.deleteCachedFeed{ _ in
+            completeOperationsInOrder.append(op2)
+            op2.fulfill()
+        }
+        
+        let op3 = expectation(description: "Operation3")
+        sut.insertItems(uniqueImageFeed().local, timestamp: Date()){ _ in
+            completeOperationsInOrder.append(op3)
+            op3.fulfill()
+        }
+        
+        waitForExpectations(timeout: 5.0)
+        XCTAssertEqual(completeOperationsInOrder, [op1,op2,op3], "Expected side-effects to run serially but operations finished in wrong order")
+        
     }
     
     private func makeSUT(storeURL: URL? = nil, file: StaticString = #file, line: UInt = #line) -> FeedStore {
