@@ -54,13 +54,14 @@ class CodableFeedStore {
         guard let data = try? Data(contentsOf: storeURL) else {
              return completion(.empty)
         }
-        
-       let decoder = JSONDecoder()
-       let cache = try! decoder.decode(Cache.self, from: data)
-        
-        completion(.found(feed: cache.localFeedCache, timestamp: cache.timestamp))
-       
-        
+        do{
+            let decoder = JSONDecoder()
+            let cache = try decoder.decode(Cache.self, from: data)
+            completion(.found(feed: cache.localFeedCache, timestamp: cache.timestamp))
+        } catch {
+            completion(.failure(error))
+        }
+      
     }
     
     func insertItems(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.InsertionComplition){
@@ -110,7 +111,7 @@ class CodableFeedStoreCache: XCTestCase {
     }
     
     
-    func test_retrieveAfterInsertingToEmptyCache_deliversInsertedValues (){
+    func test_retrieve_deliversFoundValuesOnNonEmptyCache(){
         
         let sut = makeSUT()
         let feed = uniqueImageFeed().local
@@ -132,10 +133,18 @@ class CodableFeedStoreCache: XCTestCase {
 
     }
     
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> CodableFeedStore {
+    func test_retrieve_deliversFailureOnRetrievalError(){
         let storeURL = testSpecificStoreURL()
-
-        let sut = CodableFeedStore(storeURL: storeURL)
+        let sut = makeSUT( storeURL: storeURL)
+        try! "invalid Data".write(to: storeURL, atomically: false, encoding: .utf8)
+        
+        expect(sut, toRetrieve: .failure(anyNSError()))
+        
+    }
+    
+    private func makeSUT(storeURL: URL? = nil, file: StaticString = #file, line: UInt = #line) -> CodableFeedStore {
+        
+        let sut = CodableFeedStore(storeURL: storeURL ?? testSpecificStoreURL())
         trackForMemoryLeaks(sut, file: file, line:line)
         return sut
          
@@ -184,11 +193,12 @@ class CodableFeedStoreCache: XCTestCase {
         sut.retrieve { retrievedResult in
             
             switch (expectedResult, retrievedResult){
-            case (.empty, .empty):
+            case (.empty, .empty), (.failure, .failure):
                 break
             case let (.found(expected), .found(retrieved)):
                 XCTAssertEqual(retrieved.feed, expected.feed, file: file, line: line)
                 XCTAssertEqual(retrieved.timestamp, expected.timestamp, file: file, line: line)
+            
             default:
                 XCTFail("Expected to retrieve \(expectedResult) got \(retrievedResult), instead", file: file, line: line)
                 
