@@ -78,20 +78,16 @@ class CodableFeedStore {
 class CodableFeedStoreCache: XCTestCase {
     
     
-    override  func setUp() {
-        let storeUrl = storeURL()
-        
-        try? FileManager.default.removeItem(at: storeUrl)
+    override func setUp() {
+        super.setUp()
+        setUpEmptyStoreState()
 
     }
     
     
     override func tearDown() {
         super.tearDown()
-        
-        let storeUrl = storeURL()
-        
-        try? FileManager.default.removeItem(at: storeUrl)
+        undoStoreState()
         
     }
     
@@ -172,7 +168,7 @@ class CodableFeedStoreCache: XCTestCase {
     }
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> CodableFeedStore {
-        let storeURL = storeURL()
+        let storeURL = testSpecificStoreURL()
 
         let sut = CodableFeedStore(storeURL: storeURL)
         trackForMemoryLeaks(sut, file: file, line:line)
@@ -180,8 +176,20 @@ class CodableFeedStoreCache: XCTestCase {
          
     }
     
-    private func storeURL() -> URL {
-        let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
+    private func testSpecificStoreURL() -> URL {
+        let storeURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("\(type(of: self)).store")
         return storeURL
+    }
+    
+    private func setUpEmptyStoreState() {
+        deleteStoreArtifacts()
+    }
+    
+    private func undoStoreState() {
+        deleteStoreArtifacts()
+    }
+    
+    private func deleteStoreArtifacts(){
+        try? FileManager.default.removeItem(at: testSpecificStoreURL())
     }
 }
