@@ -102,25 +102,10 @@ class CodableFeedStoreCache: XCTestCase {
     func est_retrieve_hasNotSideEffectOnEmptyCache (){
         
         let sut = makeSUT()
-        let exp = expectation(description: "Wait for cache retrieval")
-        sut.retrieve { firstResult in
-            
-            sut.retrieve { secondResult in
+        expect(sut, toRetrieveTwice: .empty)
+       
+       
     
-            switch (firstResult, secondResult) {
-            case (.empty, .empty):
-                break
-            default:
-                XCTFail("Test Fail expected empty result but got \(firstResult) and \(secondResult) instead")
-            }
-            
-            
-            exp.fulfill()
-        }
-            
-        }
-        
-        wait(for: [exp], timeout: 1.0)
         
     }
     
@@ -128,50 +113,23 @@ class CodableFeedStoreCache: XCTestCase {
     func test_retrieveAfterInsertingToEmptyCache_deliversInsertedValues (){
         
         let sut = makeSUT()
-        let exp = expectation(description: "Wait for cache retrieval")
         let feed = uniqueImageFeed().local
-        
         let timestamp = Date()
-        sut.insertItems(feed, timestamp: timestamp) { insertionError in
-            XCTAssertNil(insertionError, "Expected feed to inserted successfully")
-            exp.fulfill()
-        }
         
-        wait(for: [exp], timeout: 1.0)
+        insert((feed: feed, timestamp: timestamp), to: sut)
         expect(sut, toRetrieve: .found(feed: feed, timestamp: timestamp))
     }
     
     func test_retrieve_hasNoSideEffectOnNonEmptyCache(){
         
         let sut = makeSUT()
-        let exp = expectation(description: "Wait for cache retrieval")
         let feed = uniqueImageFeed().local
         let timestamp = Date()
-        sut.insertItems(feed, timestamp: timestamp) { insertionError in
-            sut.retrieve { firstResult in
-                
-                sut.retrieve { secondResult in
-                
-            switch (firstResult,secondResult) {
-            case let (.found(firstResult), .found(secondResult)):
-                XCTAssertEqual(firstResult.feed, feed)
-                XCTAssertEqual(firstResult.timestamp, timestamp)
-                
-                XCTAssertEqual(secondResult.feed, feed)
-                XCTAssertEqual(secondResult.timestamp, timestamp)
-            default:
-                XCTFail("Expected retrieving twice from non empty cache to deliver same found result with \(feed) and timestamp \(timestamp), but got \(firstResult) and \(secondResult)")
-            }
-            
-            
-            exp.fulfill()
-        }
-            }
-            
-        }
+    
+        insert((feed: feed, timestamp: timestamp), to: sut)
+        expect(sut, toRetrieveTwice: .found(feed: feed, timestamp: timestamp))
         
-        wait(for: [exp], timeout: 1.0)
-        
+
     }
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> CodableFeedStore {
@@ -198,6 +156,26 @@ class CodableFeedStoreCache: XCTestCase {
     
     private func deleteStoreArtifacts(){
         try? FileManager.default.removeItem(at: testSpecificStoreURL())
+    }
+    
+    
+    private func insert(_ cache: (feed:[LocalFeedImage], timestamp: Date), to sut: CodableFeedStore){
+        
+        let exp = expectation(description: "Wait for cache retrieval")
+        
+        sut.insertItems(cache.feed, timestamp: cache.timestamp) { insertionError in
+            XCTAssertNil(insertionError, "Expected feed to insert")
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+        
+    }
+    
+    
+    private func expect(_ sut: CodableFeedStore, toRetrieveTwice expectedResult: RetrieveCachedFeedResult, file:StaticString = #file, line: UInt = #line){
+        expect(sut, toRetrieve:expectedResult, file: file, line: line)
+        expect(sut, toRetrieve: expectedResult, file: file, line: line)
     }
     
     private func expect(_ sut: CodableFeedStore, toRetrieve expectedResult: RetrieveCachedFeedResult, file:StaticString = #file, line: UInt = #line){
