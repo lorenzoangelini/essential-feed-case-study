@@ -10,6 +10,16 @@ import EssentialsFeed
 
 class EssentialsFeedCacheIntegrationTests: XCTestCase {
     
+    override  func tearDown() {
+        super.tearDown()
+        undoStoreSideEffect()
+       
+    }
+    
+    override func setUp() {
+         super.setUp()
+        setUpEmptyStoreTest()
+    }
     
     func test_load_deliversNoItemsOnEmptyCache(){
         
@@ -29,6 +39,39 @@ class EssentialsFeedCacheIntegrationTests: XCTestCase {
         }
         
         wait(for: [exp], timeout: 1.0)
+        
+    }
+    func test_load_deliversItemsSavedOnASeparatedInstance(){
+        let sutToPerformSave = makeSUT()
+        let sutToPerformLoad = makeSUT()
+        let feed = uniqueImageFeed().models
+        
+        let saveExp = expectation(description: "Wait for completion")
+        
+        sutToPerformSave.save(feed) { saveError in
+            
+            XCTAssertNil(saveError, "Expected to save successfully")
+            saveExp.fulfill()
+            
+        }
+        
+        wait(for: [saveExp], timeout: 1.0)
+        
+        
+        let loadExp = expectation(description: "Wait for load completion")
+        sutToPerformLoad.load { result in
+            
+            switch result  {
+            case let .success(imageFeed):
+                XCTAssertEqual(imageFeed, feed)
+            case let .failure(error):
+                XCTFail("Expect successful but got \(result)")
+            }
+            
+            loadExp.fulfill()
+        }
+        
+        wait(for: [loadExp], timeout: 1.0)
         
     }
 
@@ -52,5 +95,17 @@ class EssentialsFeedCacheIntegrationTests: XCTestCase {
         return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
     }
     
+    private func undoStoreSideEffect() {
+        deleteStoreArtifacts()
+    }
+    
+    private func setUpEmptyStoreTest() {
+        deleteStoreArtifacts()
+    }
+    
+    
+    private func deleteStoreArtifacts(){
+        try? FileManager.default.removeItem(at: testSpecificStoreURL())
+    }
 
 }
