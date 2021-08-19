@@ -31,33 +31,33 @@ class FeedStoreSpy :  FeedStore{
         receivedMessages.append(.deletedCacheFeedItem)
     }
     func completeDeletion(with error: NSError, at index: Int = 0){
-        deletionComplition[index](error)
+        deletionComplition[index](.failure(error))
        
         
     }
     func completeDeletionSuccessfully(at index: Int = 0){
-        deletionComplition[index](nil)
+        deletionComplition[index](.success(()))
         
     }
     
     
     
     func completeInsertion(with error: NSError, at index: Int = 0){
-        insertionComplition[index](error)
+        insertionComplition[index](.failure(error))
        
     }
     
    
     
     func completeInsertionSuccessfully(at index: Int = 0){
-        insertionComplition[index](nil)
+        insertionComplition[index](.success(()))
         
     }
     
    
     
     func completeRetrievalWithEmptyCache(at index: Int = 0){
-        retrievalComplition[index](.empty)
+        retrievalComplition[index](.success(.none))
     }
     
     
@@ -66,7 +66,7 @@ class FeedStoreSpy :  FeedStore{
     }
     
     func completeRetrieval(with feed: [LocalFeedImage], timestamp: Date,   at index: Int = 0){
-        retrievalComplition[index](.found(feed: feed, timestamp: timestamp))
+        retrievalComplition[index](.success(.some(CachedFeed( feed: feed, timestamp: timestamp))))
     }
     
     func insertItems(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion){
