@@ -586,7 +586,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lorenzoangelini.EssentialsFeedCacheIntegrationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -606,7 +606,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lorenzoangelini.EssentialsFeedCacheIntegrationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -839,6 +839,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.lorenzoangelini.EssentialsFeedApiEndToEndTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -857,6 +858,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.lorenzoangelini.EssentialsFeedApiEndToEndTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
